@@ -11,7 +11,6 @@ import (
 // GetRaceFinalResult should process race LapsMapper and give final result
 func GetRaceFinalResult(result domain.LapsMapper) {
 	raceResultM := ProcessFinalResult(result)
-	// TODO maybe pass a pointer
 	raceResultM = OrderRaceResult(raceResultM)
 	ShowRaceResult(raceResultM)
 }
