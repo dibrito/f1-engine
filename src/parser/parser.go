@@ -27,7 +27,7 @@ func ProcessRaceResultInput() domain.LapsMapper {
 
 func readInputFile() (*os.File, error) {
 	// TODO make file path configurable
-	file, err := os.Open("/Users/pedro.brito/go/src/github.com/dibrito/f1-engine/src/run-result.txt")
+	file, err := os.Open("src/run-result.txt")
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
