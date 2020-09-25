@@ -32,4 +32,5 @@ type RaceResult struct {
 	PilotName     string
 	CompletedLaps int
 	TotalRaceTime time.Duration
+	AvgSpeed float64
 }

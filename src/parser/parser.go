@@ -13,39 +13,48 @@ import (
 )
 
 // ProcessRaceResultInput process the race input result files and parses the data to the race result struct
-func ProcessRaceResultInput() {
+func ProcessRaceResultInput() domain.LapsMapper {
 	// 1. read entry file
-	readInputFile()
+	file, err := readInputFile()
+	if err != nil {
+		log.Fatal(err)
+		return domain.LapsMapper{}
+	}
+
+	laps := BuildSliceOfLaps(file)
+	return BuildMapper(laps)
 }
 
-func readInputFile() {
-	// TODO make a way to have a global logger and not defining it at every file
-	//logger, _ := zap.NewProduction()
-	//logger.Info(string(dat))
-
+func readInputFile() (*os.File, error) {
 	// TODO make file path configurable
 	file, err := os.Open("/Users/pedro.brito/go/src/github.com/dibrito/f1-engine/src/run-result.txt")
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
-	defer file.Close()
+	// TODO close file
+	//defer file.Close()
 
-	BuildLapMapper(file)
+	return file, nil
 }
 
-func BuildLapMapper(file *os.File) {
+// BuildSliceOfLaps go through files lines and build a slice of laps
+func BuildSliceOfLaps(file *os.File) []domain.LapResult {
 	var m domain.LapsMapper
 	m.Result = map[int][]domain.LapResult{}
+	var laps []domain.LapResult
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		//line := scanner.Text()
-		//lap := BuildLap(line)
-
+		line := scanner.Text()
+		lap := BuildLap(line)
+		laps = append(laps, lap)
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
+
+	return laps
 }
 
 // BuildMapper build a mapper of pilot code with its laps
@@ -61,14 +70,12 @@ func BuildMapper(laps []domain.LapResult) domain.LapsMapper {
 	return m
 }
 
+// BuildLap normalize and parses line to build a LapResult
 func BuildLap(line string) domain.LapResult {
-	//var m domain.LapsMapper
-	//m.Result = map[int][]domain.LapResult{}
 	line = RemoveTabsFromLine(line)
 	fields := RemoveEmptySpacesAndSplit(line)
 	fields = RemoveDashFieldFromSplitedFields(fields)
 	lap := BuildLapResult(fields)
-	//m.Result[lap.PilotCode] = append(m.Result[lap.PilotCode], lap)
 	return lap
 }
 

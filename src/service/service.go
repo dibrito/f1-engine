@@ -8,6 +8,23 @@ import (
 	"github.com/dibrito/f1-engine/src/domain"
 )
 
+// GetRaceFinalResult should process race LapsMapper and give final result
+func GetRaceFinalResult(result domain.LapsMapper) {
+	raceResultM := ProcessFinalResult(result)
+	// TODO maybe pass a pointer
+	raceResultM = OrderRaceResult(raceResultM)
+	ShowRaceResult(raceResultM)
+}
+
+func ShowRaceResult(result domain.RaceResultMapper) {
+	fmt.Println("POSITION \t\t\t\t PILOT \t\t\t\t TOTAL LAPS \t\t\t\t TOTAL RACE TIME")
+	for i := 1; i < len(result.Result)+1; i++ {
+		v := result.Result[i]
+		fmt.Printf("%v \t\t\t\t %d - %s \t\t\t\t %d \t\t\t\t %v\t\t\t\t \n",
+			v.FinalPosition, v.PilotCode, v.PilotName, v.CompletedLaps, v.TotalRaceTime)
+	}
+}
+
 // GetRaceDuration sums all Laps duration
 func GetRaceDuration(laps []domain.LapResult) time.Duration {
 	var raceDuration time.Duration
@@ -17,6 +34,17 @@ func GetRaceDuration(laps []domain.LapResult) time.Duration {
 	}
 
 	return raceDuration
+}
+
+// GetAvgSpeed get avg speed
+func GetAvgSpeed(laps []domain.LapResult) float64 {
+	avgSpeed := 0.0
+
+	for _, l := range laps {
+		avgSpeed += l.AvgSpeed
+	}
+
+	return avgSpeed / float64(len(laps))
 }
 
 // GetTotalCompletedLaps sums all Laps
@@ -48,13 +76,9 @@ func OrderRaceResult(result domain.RaceResultMapper) domain.RaceResultMapper {
 		return ss[i].Value < ss[j].Value
 	})
 
-	for _, kv := range ss {
-		fmt.Printf("%d, %v\n", kv.Key, kv.Value)
-	}
-
 	for i, _ := range ss {
 		pilotCode := ss[i].Key
-		orderedResult.Result[pilotCode] = domain.RaceResult{
+		orderedResult.Result[i+1] = domain.RaceResult{
 			FinalPosition: i + 1,
 			PilotCode:     pilotCode,
 			PilotName:     result.Result[pilotCode].PilotName,
@@ -75,6 +99,7 @@ func ProcessFinalResult(mapper domain.LapsMapper) domain.RaceResultMapper {
 		pilotName := laps[0].PilotName
 		totalRaceTime := GetRaceDuration(laps)
 		totalCompletedLaps := GetTotalCompletedLaps(laps)
+		agvSpeeed := GetAvgSpeed(laps)
 
 		if _, ok := finalResult.Result[pilotCode]; !ok {
 			finalResult.Result[pilotCode] = domain.RaceResult{
@@ -83,6 +108,7 @@ func ProcessFinalResult(mapper domain.LapsMapper) domain.RaceResultMapper {
 				PilotName:     pilotName,
 				CompletedLaps: totalCompletedLaps,
 				TotalRaceTime: totalRaceTime,
+				AvgSpeed:      agvSpeeed,
 			}
 		}
 	}
