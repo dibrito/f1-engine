@@ -16,3 +16,5 @@ go test ./...
 * create handlers(http,rpc) so it can provide a way to comunicate with the service
 * add make file
 * add docker 
+
+* implement bonus features
