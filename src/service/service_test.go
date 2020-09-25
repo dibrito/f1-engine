@@ -85,7 +85,7 @@ var (
 )
 
 func setFinalResult() {
-	wantFinalResult.Result[38] = domain.RaceResult{
+	wantFinalResult.Result[1] = domain.RaceResult{
 		FinalPosition: 1,
 		PilotCode:     38,
 		PilotName:     "F.MASSA",
@@ -99,8 +99,8 @@ func setFinalResult() {
 			},
 		}),
 	}
-	wantFinalResult.Result[33] = domain.RaceResult{
-		FinalPosition: 2,
+	wantFinalResult.Result[3] = domain.RaceResult{
+		FinalPosition: 3,
 		PilotCode:     33,
 		PilotName:     "R.BARRICHELLO",
 		CompletedLaps: 2,
@@ -114,7 +114,7 @@ func setFinalResult() {
 		}),
 	}
 	wantFinalResult.Result[2] = domain.RaceResult{
-		FinalPosition: 3,
+		FinalPosition: 2,
 		PilotCode:     2,
 		PilotName:     "K.RAIKKONEN",
 		CompletedLaps: 2,
@@ -134,7 +134,8 @@ func TestGetRaceTotalTime(t *testing.T) {
 		want, err := time.ParseDuration(parser.FormatLapDuration("2:06.022"))
 		require.NoError(t, err)
 
-		totalRaceTime := GetRaceDuration(Laps)
+		laps:=Laps[:2]
+		totalRaceTime := GetRaceDuration(laps)
 		require.EqualValues(t, totalRaceTime, want)
 	})
 }
@@ -142,7 +143,8 @@ func TestGetRaceTotalTime(t *testing.T) {
 func TestGetTotalCompletedLaps(t *testing.T) {
 	t.Run("should get race total Laps", func(t *testing.T) {
 		want := 2
-		got := GetTotalCompletedLaps(Laps)
+		laps:=Laps[:2]
+		got := GetTotalCompletedLaps(laps)
 		require.EqualValues(t, want, got)
 	})
 }
@@ -152,9 +154,9 @@ func TestOrderRaceResult(t *testing.T) {
 		setFinalResult()
 		ordered:=OrderRaceResult(wantFinalResult)
 		// TODO way of comparing this without put pilot code hard coded
-		require.EqualValues(t,ordered.Result[38].FinalPosition,1)
+		require.EqualValues(t,ordered.Result[1].FinalPosition,1)
 		require.EqualValues(t,ordered.Result[2].FinalPosition,2)
-		require.EqualValues(t,ordered.Result[33].FinalPosition,3)
+		require.EqualValues(t,ordered.Result[3].FinalPosition,3)
 	})
 }
 
@@ -162,6 +164,7 @@ func TestProcessFinalResult(t *testing.T) {
 	t.Run("should final position for a pilot", func(t *testing.T) {
 		setFinalResult()
 		got := ProcessFinalResult(m)
-		require.EqualValues(t, wantFinalResult, got)
+		ordered:=OrderRaceResult(got)
+		require.EqualValues(t, wantFinalResult, ordered)
 	})
 }
