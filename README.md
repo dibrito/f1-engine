@@ -3,6 +3,7 @@
 #### To run this project
 
 go build
+go test ./...
 ./f1-engine
 
 ##### Things to improve
